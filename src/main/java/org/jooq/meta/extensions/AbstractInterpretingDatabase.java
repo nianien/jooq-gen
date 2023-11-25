@@ -3,7 +3,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ *  https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,7 +17,7 @@
  * ASL 2.0 and offer limited warranties, support, maintenance, and commercial
  * database integrations.
  *
- * For more information, please visit: http://www.jooq.org/licenses
+ * For more information, please visit: https://www.jooq.org/legal/licensing
  *
  *
  *
@@ -37,21 +37,20 @@
  */
 package org.jooq.meta.extensions;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-import java.util.UUID;
-
+import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jooq.DSLContext;
-import org.jooq.Internal;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
 import org.jooq.meta.SchemaDefinition;
 import org.jooq.meta.h2.H2Database;
 import org.jooq.tools.jdbc.JDBCUtils;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+import java.util.UUID;
 
 /**
  * A common base class for "interpreting" databases, which interpret a third

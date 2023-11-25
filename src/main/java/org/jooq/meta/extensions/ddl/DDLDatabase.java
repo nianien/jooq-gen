@@ -3,7 +3,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ *  https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,7 +17,7 @@
  * ASL 2.0 and offer limited warranties, support, maintenance, and commercial
  * database integrations.
  *
- * For more information, please visit: http://www.jooq.org/licenses
+ * For more information, please visit: https://www.jooq.org/legal/licensing
  *
  *
  *
@@ -37,6 +37,7 @@
  */
 package org.jooq.meta.extensions.ddl;
 
+// ...
 import static org.jooq.conf.SettingsTools.renderLocale;
 import static org.jooq.impl.DSL.name;
 import static org.jooq.tools.StringUtils.isBlank;
@@ -58,11 +59,11 @@ import org.jooq.Query;
 import org.jooq.ResultQuery;
 import org.jooq.Source;
 import org.jooq.VisitContext;
+import org.jooq.VisitListener;
 import org.jooq.conf.ParseUnknownFunctions;
 import org.jooq.conf.Settings;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
-import org.jooq.impl.DefaultVisitListener;
 import org.jooq.impl.ParserException;
 import org.jooq.meta.extensions.AbstractInterpretingDatabase;
 import org.jooq.tools.JooqLogger;
@@ -94,6 +95,7 @@ public class DDLDatabase extends AbstractInterpretingDatabase {
     protected void export() throws Exception {
         Settings defaultSettings = new Settings();
         String scripts = getProperties().getProperty("scripts");
+        String sql = getProperties().getProperty("sql");
         String encoding = getProperties().getProperty("encoding", "UTF-8");
         String sort = getProperties().getProperty("sort", "semantic").toLowerCase();
         final String defaultNameCase = getProperties().getProperty("defaultNameCase", "as_is").toUpperCase();
@@ -103,17 +105,18 @@ public class DDLDatabase extends AbstractInterpretingDatabase {
         logExecutedQueries = !"false".equalsIgnoreCase(getProperties().getProperty("logExecutedQueries"));
         logExecutionResults = !"false".equalsIgnoreCase(getProperties().getProperty("logExecutionResults"));
 
-        if (isBlank(scripts)) {
+        if (isBlank(scripts) && isBlank(sql)) {
             scripts = "";
+            sql = "";
             log.warn("No scripts defined", "It is recommended that you provide an explicit script directory to scan");
         }
 
         try {
             final DSLContext ctx = DSL.using(connection(), new Settings()
-                .withParseIgnoreComments(parseIgnoreComments)
-                .withParseIgnoreCommentStart(parseIgnoreCommentStart)
-                .withParseIgnoreCommentStop(parseIgnoreCommentStop)
-                .withParseUnknownFunctions(ParseUnknownFunctions.IGNORE)
+                    .withParseIgnoreComments(parseIgnoreComments)
+                    .withParseIgnoreCommentStart(parseIgnoreCommentStart)
+                    .withParseIgnoreCommentStop(parseIgnoreCommentStop)
+                    .withParseUnknownFunctions(ParseUnknownFunctions.IGNORE)
             );
 
             // [#7771] [#8011] Ignore all parsed storage clauses when executing the statements
@@ -123,10 +126,10 @@ public class DDLDatabase extends AbstractInterpretingDatabase {
             ctx.data("org.jooq.ddl.parse-for-ddldatabase", true);
 
             if (!"AS_IS".equals(defaultNameCase)) {
-                ctx.configuration().set(new DefaultVisitListener() {
+                ctx.configuration().set(new VisitListener() {
                     @Override
                     public void visitStart(VisitContext vc) {
-                        if (vc.queryPart() instanceof Name) { Name n = (Name) vc.queryPart();
+                        if (vc.queryPart() instanceof Name n) {
                             Name[] parts = n.parts();
                             boolean changed = false;
 
@@ -136,9 +139,9 @@ public class DDLDatabase extends AbstractInterpretingDatabase {
                                 //                  flag for DSL.systemName() names
                                 if (parts[i].quoted() == Quoted.UNQUOTED) {
                                     parts[i] = DSL.quotedName(
-                                        "UPPER".equals(defaultNameCase)
-                                      ? parts[i].first().toUpperCase(renderLocale(ctx.settings()))
-                                      : parts[i].first().toLowerCase(renderLocale(ctx.settings()))
+                                            "UPPER".equals(defaultNameCase)
+                                                    ? parts[i].first().toUpperCase(renderLocale(ctx.settings()))
+                                                    : parts[i].first().toLowerCase(renderLocale(ctx.settings()))
                                     );
                                     changed = true;
                                 }
@@ -151,12 +154,16 @@ public class DDLDatabase extends AbstractInterpretingDatabase {
                 });
             }
 
-            new FilePattern()
-                    .encoding(encoding)
-                    .basedir(new File(getBasedir()))
-                    .pattern(scripts)
-                    .sort(Sort.of(sort))
-                    .load(source -> DDLDatabase.this.load(ctx, source));
+            if (!isBlank(sql))
+                load(ctx, Source.of(sql));
+
+            if (!isBlank(scripts))
+                new FilePattern()
+                        .encoding(encoding)
+                        .basedir(new File(getBasedir()))
+                        .pattern(scripts)
+                        .sort(Sort.of(sort))
+                        .load(source -> DDLDatabase.this.load(ctx, source));
         }
         catch (ParserException e) {
             log.error("An exception occurred while parsing script source : " + scripts + ". Please report this error to https://jooq.org/bug", e);
@@ -169,7 +176,13 @@ public class DDLDatabase extends AbstractInterpretingDatabase {
 
         try {
             Scanner s = new Scanner(r = source.reader()).useDelimiter("\\A");
-            Queries queries = ctx.parser().parse(s.hasNext() ? s.next().replaceAll("(?i)\\sunsigned\\s","") : " ");
+            Queries queries = ctx.parser().parse(s.hasNext() ? s.next().replaceAll("(?i)\\sunsigned\\s","") : "");
+
+
+
+
+
+
 
             for (Query query : queries) {
 
@@ -185,7 +198,7 @@ public class DDLDatabase extends AbstractInterpretingDatabase {
                             else
                                 log.info("Update count: " + query.execute());
 
-                        // [#10008] Execute all queries. Could have FOR UPDATE or other side effects
+                            // [#10008] Execute all queries. Could have FOR UPDATE or other side effects
                         else
                             query.execute();
 
@@ -218,13 +231,13 @@ public class DDLDatabase extends AbstractInterpretingDatabase {
 
             // [#9138] Make users aware of the new parse ignore comment syntax
             log.error("DDLDatabase Error", "Your SQL string could not be parsed or interpreted. This may have a variety of reasons, including:\n"
-                + "- The jOOQ parser doesn't understand your SQL\n"
-                + "- The jOOQ DDL simulation logic (translating to H2) cannot simulate your SQL\n"
-                + "\n"
-                + "If you think this is a bug or a feature worth requesting, please report it here: https://jooq.org/bug\n"
-                + "\n"
-                + "As a workaround, you can use the Settings.parseIgnoreComments syntax documented here:\n"
-                + "https://www.jooq.org/doc/latest/manual/sql-building/dsl-context/custom-settings/settings-parser/");
+                    + "- The jOOQ parser doesn't understand your SQL\n"
+                    + "- The jOOQ DDL simulation logic (translating to H2) cannot simulate your SQL\n"
+                    + "\n"
+                    + "If you think this is a bug or a feature worth requesting, please report it here: https://jooq.org/bug\n"
+                    + "\n"
+                    + "As a workaround, you can use the Settings.parseIgnoreComments syntax documented here:\n"
+                    + "https://www.jooq.org/doc/latest/manual/sql-building/dsl-context/custom-settings/settings-parser/");
 
             throw e;
         }

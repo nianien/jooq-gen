@@ -5,11 +5,14 @@
     <groupId>io.github.nianien</groupId>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>jooq-gen</artifactId>
-    <version>3.16.20-SNAPSHOT</version>
+    <version>3.18.7</version>
+    <name>jooq-gen</name>
+    <description>enhance tools for jooq-gen</description>
+    <url>https://github.com/nianien/jooq-gen</url>
 
     <properties>
-        <java.version>11</java.version>
-        <jooq.version>3.16.20</jooq.version>
+        <java.version>17</java.version>
+        <jooq.version>3.18.7</jooq.version>
     </properties>
 
     <licenses>
@@ -171,6 +174,18 @@
             <groupId>org.jooq</groupId>
             <artifactId>jooq-meta-extensions</artifactId>
             <version>${jooq.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <version>24.0.0</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>annotations</artifactId>
+            <version>3.0.1u2</version>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.jooq</groupId>
