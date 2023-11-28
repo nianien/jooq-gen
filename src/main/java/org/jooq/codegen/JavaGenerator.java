@@ -1036,7 +1036,8 @@ public class JavaGenerator extends AbstractGenerator {
             out.print("%s.createIndex(%s.name(\"%s\"), %s, Array[%s [_] ](%s), %s)",
                     Internal.class,
                     DSL.class,
-                    escapeString(index.getOutputName()),
+                    //FIXME: recovery index name from unique index
+                    escapeString(index.getOutputName().substring(index.getTable().getName().length()+1)),
                     out.ref(getStrategy().getFullJavaIdentifier(index.getTable()), 2),
                     OrderField.class,
                     orderFields,
@@ -1046,7 +1047,8 @@ public class JavaGenerator extends AbstractGenerator {
             out.print("%s.createIndex(%s.name(\"%s\"), %s, arrayOf(%s), %s)",
                     Internal.class,
                     DSL.class,
-                    escapeString(index.getOutputName()),
+                    //FIXME: recovery index name from unique index
+                    escapeString(index.getOutputName().substring(index.getTable().getName().length()+1)),
                     out.ref(getStrategy().getFullJavaIdentifier(index.getTable()), 2),
                     orderFields,
                     index.isUnique()
@@ -1055,7 +1057,8 @@ public class JavaGenerator extends AbstractGenerator {
             out.print("%s.createIndex(%s.name(\"%s\"), %s, new %s[] { %s }, %s)",
                     Internal.class,
                     DSL.class,
-                    escapeString(index.getOutputName()),
+                    //FIXME: recovery index name from unique index
+                    escapeString(index.getOutputName().substring(index.getTable().getName().length()+1)),
                     out.ref(getStrategy().getFullJavaIdentifier(index.getTable()), 2),
                     OrderField.class,
                     orderFields,
@@ -1116,7 +1119,8 @@ public class JavaGenerator extends AbstractGenerator {
                     Internal.class,
                     out.ref(getStrategy().getFullJavaIdentifier(uniqueKey.getTable()), 2),
                     DSL.class,
-                    escapeString(uniqueKey.getOutputName()),
+                    //FIXME: recovery index name from unique index
+                    escapeString(uniqueKey.getOutputName().substring(uniqueKey.getTable().getName().length()+1)),
                     out.ref(getStrategy().getFullJavaIdentifiers(uniqueKey.getKeyColumns()), colRefSegments(null)),
                     TableField.class,
                     out.ref(getStrategy().getJavaClassName(uniqueKey.getTable(), Mode.RECORD)),
@@ -1126,7 +1130,8 @@ public class JavaGenerator extends AbstractGenerator {
                     Internal.class,
                     out.ref(getStrategy().getFullJavaIdentifier(uniqueKey.getTable()), 2),
                     DSL.class,
-                    escapeString(uniqueKey.getOutputName()),
+                    //FIXME: recovery index name from unique index
+                    escapeString(uniqueKey.getOutputName().substring(uniqueKey.getTable().getName().length()+1)),
                     out.ref(getStrategy().getFullJavaIdentifiers(uniqueKey.getKeyColumns()), colRefSegments(null)),
                     uniqueKey.enforced());
         else
@@ -1134,7 +1139,8 @@ public class JavaGenerator extends AbstractGenerator {
                     Internal.class,
                     out.ref(getStrategy().getFullJavaIdentifier(uniqueKey.getTable()), 2),
                     DSL.class,
-                    escapeString(uniqueKey.getOutputName()),
+                    //FIXME: recovery index name from unique index
+                    escapeString(uniqueKey.getOutputName().substring(uniqueKey.getTable().getName().length()+1)),
                     TableField.class,
                     out.ref(getStrategy().getFullJavaIdentifiers(uniqueKey.getKeyColumns()), colRefSegments(null)),
                     uniqueKey.enforced());

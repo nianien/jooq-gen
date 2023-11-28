@@ -43,31 +43,54 @@
                         <to>Date::getTime</to>
                         <nullable>true</nullable>
                     </lambdaConverter>
+                    <!--<converter>
+                        org.jooq.Converter.ofNullable(
+                        Long.class, Date.class,
+                        Date::new, Date::getTime)
+                    </converter>-->
                 </forcedType>
 
                 <!--将时间&日期类型统一转化成java.util.Date-->
                 <forcedType>
                     <userType>java.util.Date</userType>
-                    <types>TIME</types>
-                    <converter>org.jooq.plus.converter.LocalTimeConverter</converter>
+                    <includeTypes>TIME</includeTypes>
+                    <lambdaConverter>
+                        <!--user-type to db-type-->
+                        <from>local->Date.from(LocalDateTime.of(LocalDate.now(),
+                            local).atZone(java.time.ZoneId.systemDefault()).toInstant())
+                        </from>
+                        <!--user-type to db-type-->
+                        <to>date->LocalDateTime.ofInstant(date.toInstant(),
+                            java.time.ZoneId.systemDefault()).toLocalTime()
+                        </to>
+                        <nullable>true</nullable>
+                    </lambdaConverter>
                 </forcedType>
                 <forcedType>
                     <userType>java.util.Date</userType>
-                    <types>DATE</types>
-                    <converter>org.jooq.plus.converter.LocalDateConverter</converter>
+                    <includeTypes>DATE</includeTypes>
+                    <lambdaConverter>
+                        <!--user-type to db-type-->
+                        <from>
+                            local->Date.from(local.atStartOfDay().atZone(java.time.ZoneId.systemDefault()).toInstant())
+                        </from>
+                        <!--user-type to db-type-->
+                        <to>date->LocalDateTime.ofInstant(date.toInstant(),
+                            java.time.ZoneId.systemDefault()).toLocalDate()
+                        </to>
+                        <nullable>true</nullable>
+                    </lambdaConverter>
                 </forcedType>
                 <forcedType>
                     <userType>java.util.Date</userType>
-                    <types>DATETIME|TIMESTAMP</types>
-                    <converter>org.jooq.plus.converter.LocalDateTimeConverter</converter>
-                </forcedType>
-
-                <!--敏感字段加密-->
-                <forcedType>
-                    <userType>java.lang.String</userType>
-                    <types>VARCHAR|CHAR</types>
-                    <expression>.*(phone|email).*</expression>
-                    <converter>org.jooq.plus.converter.EncryptConverter</converter>
+                    <includeTypes>DATETIME|TIMESTAMP</includeTypes>
+                    <lambdaConverter>
+                        <!--user-type to db-type-->
+                        <from>local->Date.from(local.atZone(java.time.ZoneId.systemDefault()).toInstant())</from>
+                        <!--user-type to db-type-->
+                        <to>date->LocalDateTime.ofInstant(date.toInstant(), java.time.ZoneId.systemDefault())</to>
+                        <nullable>true</nullable>
+                    </lambdaConverter>
                 </forcedType>
             </forcedTypes>
             <!--根据schema生成代码,不可使用通配符-->

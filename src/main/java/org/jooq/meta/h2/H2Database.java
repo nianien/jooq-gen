@@ -192,8 +192,7 @@ public class H2Database extends AbstractDatabase implements ResultQueryDatabase 
                 continue indexLoop;
 
             final String tableName = index.get(INDEXES.TABLE_NAME);
-            //FIXME: remove table_prefix compatible to MySQL
-            final String indexName = index.get(INDEXES.INDEX_NAME).substring(tableName.length()+1);
+            final String indexName = index.get(INDEXES.INDEX_NAME);
             final TableDefinition table = getTable(tableSchema, tableName);
             if (table == null)
                 continue indexLoop;
@@ -293,7 +292,10 @@ public class H2Database extends AbstractDatabase implements ResultQueryDatabase 
                 String tableName = record.get(CONSTRAINTS.TABLE_NAME);
                 String primaryKey = record.get(CONSTRAINTS.CONSTRAINT_NAME);
                 String columnName = record.get(INDEXES.COLUMN_NAME);
-
+                //FIXME: add meaningful name for primary key
+                if(primaryKey.startsWith("CONSTRAINT_")){
+                    primaryKey = tableName+"_"+"primary_key";
+                }
                 TableDefinition table = getTable(schema, tableName);
                 if (table != null)
                     relations.addPrimaryKey(primaryKey, table, table.getColumn(columnName));
@@ -308,8 +310,7 @@ public class H2Database extends AbstractDatabase implements ResultQueryDatabase 
 
             if (schema != null) {
                 String tableName = record.get(CONSTRAINTS.TABLE_NAME);
-                //FIXME: remove table_prefix compatible to MySQL
-                String primaryKey = record.get(CONSTRAINTS.CONSTRAINT_NAME).substring(tableName.length()+1);
+                String primaryKey = record.get(CONSTRAINTS.CONSTRAINT_NAME);
                 String columnName = record.get(INDEXES.COLUMN_NAME);
 
                 TableDefinition table = getTable(schema, tableName);
