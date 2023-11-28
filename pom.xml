@@ -5,8 +5,9 @@
     <groupId>io.github.nianien</groupId>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>jooq-gen</artifactId>
-    <version>3.16.20u1</version>
-
+    <version>3.16.20-1</version>
+    <name>jooq-gen</name>
+    <description>generate java code by sql scripts</description>
     <properties>
         <java.version>11</java.version>
         <jooq.version>3.16.20</jooq.version>
@@ -189,11 +190,6 @@
             <artifactId>jooq-codegen-maven</artifactId>
             <version>${jooq.version}</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <version>2.1.214</version>
         </dependency>
     </dependencies>
 
