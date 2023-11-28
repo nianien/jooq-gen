@@ -37,111 +37,25 @@
  */
 package org.jooq.impl;
 
-import static java.lang.Boolean.FALSE;
-import static java.lang.Boolean.TRUE;
-import static org.jooq.Clause.CREATE_TABLE;
-import static org.jooq.Clause.CREATE_TABLE_AS;
-import static org.jooq.Clause.CREATE_TABLE_COLUMNS;
-import static org.jooq.Clause.CREATE_TABLE_CONSTRAINTS;
-import static org.jooq.Clause.CREATE_TABLE_NAME;
-// ...
-// ...
-// ...
-// ...
-// ...
-import static org.jooq.SQLDialect.CUBRID;
-// ...
-import static org.jooq.SQLDialect.DERBY;
-// ...
-import static org.jooq.SQLDialect.FIREBIRD;
-import static org.jooq.SQLDialect.H2;
-// ...
-import static org.jooq.SQLDialect.HSQLDB;
-import static org.jooq.SQLDialect.IGNITE;
-// ...
-// ...
-import static org.jooq.SQLDialect.MARIADB;
-// ...
-import static org.jooq.SQLDialect.MYSQL;
-// ...
-import static org.jooq.SQLDialect.POSTGRES;
-// ...
-// ...
-// ...
-import static org.jooq.SQLDialect.SQLITE;
-// ...
-// ...
-// ...
-// ...
-import static org.jooq.SQLDialect.YUGABYTEDB;
-import static org.jooq.impl.DSL.asterisk;
-import static org.jooq.impl.DSL.commentOnTable;
-import static org.jooq.impl.DSL.createIndex;
-import static org.jooq.impl.DSL.field;
-import static org.jooq.impl.DSL.inline;
-import static org.jooq.impl.DSL.insertInto;
-import static org.jooq.impl.DSL.name;
-import static org.jooq.impl.DSL.select;
-import static org.jooq.impl.DSL.sql;
-import static org.jooq.impl.DSL.table;
-import static org.jooq.impl.Keywords.K_AS;
-import static org.jooq.impl.Keywords.K_COMMENT;
-import static org.jooq.impl.Keywords.K_CREATE;
-import static org.jooq.impl.Keywords.K_GLOBAL_TEMPORARY;
-import static org.jooq.impl.Keywords.K_IF_NOT_EXISTS;
-import static org.jooq.impl.Keywords.K_INDEX;
-import static org.jooq.impl.Keywords.K_IS;
-import static org.jooq.impl.Keywords.K_ON_COMMIT_DELETE_ROWS;
-import static org.jooq.impl.Keywords.K_ON_COMMIT_DROP;
-import static org.jooq.impl.Keywords.K_ON_COMMIT_PRESERVE_ROWS;
-import static org.jooq.impl.Keywords.K_TABLE;
-import static org.jooq.impl.Keywords.K_TEMPORARY;
-import static org.jooq.impl.Keywords.K_UNIQUE;
-import static org.jooq.impl.Keywords.K_WITH_DATA;
-import static org.jooq.impl.Keywords.K_WITH_NO_DATA;
-import static org.jooq.impl.SQLDataType.INTEGER;
-import static org.jooq.impl.Tools.EMPTY_FIELD;
-import static org.jooq.impl.Tools.anyMatch;
-import static org.jooq.impl.Tools.begin;
-import static org.jooq.impl.Tools.enums;
-import static org.jooq.impl.Tools.executeImmediate;
-import static org.jooq.impl.Tools.findAny;
-import static org.jooq.impl.Tools.map;
-import static org.jooq.impl.Tools.storedEnumType;
-import static org.jooq.impl.Tools.tryCatch;
-import static org.jooq.impl.Tools.BooleanDataKey.DATA_SELECT_NO_DATA;
-import static org.jooq.impl.Tools.DataKey.DATA_SELECT_INTO_TABLE;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-import java.util.function.Consumer;
-
-import org.jooq.Comment;
-import org.jooq.Condition;
-import org.jooq.Configuration;
-import org.jooq.Constraint;
-import org.jooq.Context;
-import org.jooq.CreateTableColumnStep;
-import org.jooq.CreateTableConstraintStep;
-import org.jooq.CreateTableWithDataStep;
-import org.jooq.DataType;
-import org.jooq.EnumType;
-import org.jooq.Field;
-import org.jooq.Index;
-import org.jooq.Name;
-import org.jooq.Nullability;
-// ...
-import org.jooq.QueryPart;
 import org.jooq.Record;
-import org.jooq.SQL;
-import org.jooq.SQLDialect;
-import org.jooq.Select;
-import org.jooq.Table;
+import org.jooq.*;
 import org.jooq.TableOptions.OnCommit;
 import org.jooq.impl.QOM.UNotYetImplemented;
+
+import java.util.*;
+import java.util.function.Consumer;
+
+import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
+import static org.jooq.Clause.*;
+import static org.jooq.SQLDialect.*;
+import static org.jooq.impl.DSL.field;
+import static org.jooq.impl.DSL.*;
+import static org.jooq.impl.Keywords.*;
+import static org.jooq.impl.SQLDataType.INTEGER;
+import static org.jooq.impl.Tools.BooleanDataKey.DATA_SELECT_NO_DATA;
+import static org.jooq.impl.Tools.begin;
+import static org.jooq.impl.Tools.*;
 
 
 /**
@@ -153,39 +67,34 @@ final class CreateTableImpl
         implements
         CreateTableWithDataStep,
         CreateTableColumnStep,
-        UNotYetImplemented
-
-{
-    private static final Set<SQLDialect> NO_SUPPORT_IF_NOT_EXISTS           = SQLDialect.supportedBy(DERBY, FIREBIRD);
-    private static final Set<SQLDialect> NO_SUPPORT_WITH_DATA               = SQLDialect.supportedBy(H2, MARIADB, MYSQL, SQLITE);
-    private static final Set<SQLDialect> NO_SUPPORT_CTAS_COLUMN_NAMES       = SQLDialect.supportedBy(H2);
-    private static final Set<SQLDialect> EMULATE_INDEXES_IN_BLOCK           = SQLDialect.supportedBy(FIREBIRD, POSTGRES, YUGABYTEDB);
-    private static final Set<SQLDialect> EMULATE_SOME_ENUM_TYPES_AS_CHECK   = SQLDialect.supportedBy(CUBRID, DERBY, FIREBIRD, HSQLDB, POSTGRES, SQLITE, YUGABYTEDB);
+        UNotYetImplemented {
+    private static final Set<SQLDialect> NO_SUPPORT_IF_NOT_EXISTS = SQLDialect.supportedBy(DERBY, FIREBIRD);
+    private static final Set<SQLDialect> NO_SUPPORT_WITH_DATA = SQLDialect.supportedBy(H2, MARIADB, MYSQL, SQLITE);
+    private static final Set<SQLDialect> NO_SUPPORT_CTAS_COLUMN_NAMES = SQLDialect.supportedBy(H2);
+    private static final Set<SQLDialect> EMULATE_INDEXES_IN_BLOCK = SQLDialect.supportedBy(FIREBIRD, POSTGRES, YUGABYTEDB);
+    private static final Set<SQLDialect> EMULATE_SOME_ENUM_TYPES_AS_CHECK = SQLDialect.supportedBy(CUBRID, DERBY, FIREBIRD, HSQLDB, POSTGRES, SQLITE, YUGABYTEDB);
     private static final Set<SQLDialect> EMULATE_STORED_ENUM_TYPES_AS_CHECK = SQLDialect.supportedBy(CUBRID, DERBY, FIREBIRD, HSQLDB, SQLITE);
-    private static final Set<SQLDialect> REQUIRES_WITH_DATA                 = SQLDialect.supportedBy(HSQLDB);
-    private static final Set<SQLDialect> WRAP_SELECT_IN_PARENS              = SQLDialect.supportedBy(HSQLDB);
-    private static final Set<SQLDialect> SUPPORT_TEMPORARY                  = SQLDialect.supportedBy(MARIADB, MYSQL, POSTGRES, YUGABYTEDB);
-    private static final Set<SQLDialect> EMULATE_COMMENT_IN_BLOCK           = SQLDialect.supportedBy(FIREBIRD, POSTGRES, YUGABYTEDB);
-    private static final Set<SQLDialect> REQUIRE_EXECUTE_IMMEDIATE          = SQLDialect.supportedBy(FIREBIRD);
-    private static final Set<SQLDialect> NO_SUPPORT_NULLABLE_PRIMARY_KEY    = SQLDialect.supportedBy(MARIADB, MYSQL);
-    private static final Set<SQLDialect> REQUIRE_NON_PK_COLUMNS             = SQLDialect.supportedBy(IGNITE);
+    private static final Set<SQLDialect> REQUIRES_WITH_DATA = SQLDialect.supportedBy(HSQLDB);
+    private static final Set<SQLDialect> WRAP_SELECT_IN_PARENS = SQLDialect.supportedBy(HSQLDB);
+    private static final Set<SQLDialect> SUPPORT_TEMPORARY = SQLDialect.supportedBy(MARIADB, MYSQL, POSTGRES, YUGABYTEDB);
+    private static final Set<SQLDialect> EMULATE_COMMENT_IN_BLOCK = SQLDialect.supportedBy(FIREBIRD, POSTGRES, YUGABYTEDB);
+    private static final Set<SQLDialect> REQUIRE_EXECUTE_IMMEDIATE = SQLDialect.supportedBy(FIREBIRD);
+    private static final Set<SQLDialect> NO_SUPPORT_NULLABLE_PRIMARY_KEY = SQLDialect.supportedBy(MARIADB, MYSQL);
+    private static final Set<SQLDialect> REQUIRE_NON_PK_COLUMNS = SQLDialect.supportedBy(IGNITE);
 
 
-
-
-
-    private final Table<?>               table;
-    private Select<?>                    select;
-    private Boolean                      withData;
-    private final List<Field<?>>         columnFields;
-    private final List<DataType<?>>      columnTypes;
-    private final List<Constraint>       constraints;
-    private final List<Index>            indexes;
-    private final boolean                temporary;
-    private final boolean                ifNotExists;
-    private OnCommit                     onCommit;
-    private Comment                      comment;
-    private SQL                          storage;
+    private final Table<?> table;
+    private Select<?> select;
+    private Boolean withData;
+    private final List<Field<?>> columnFields;
+    private final List<DataType<?>> columnTypes;
+    private final List<Constraint> constraints;
+    private final List<Index> indexes;
+    private final boolean temporary;
+    private final boolean ifNotExists;
+    private OnCommit onCommit;
+    private Comment comment;
+    private SQL storage;
 
     CreateTableImpl(Configuration configuration, Table<?> table, boolean temporary, boolean ifNotExists) {
         super(configuration);
@@ -199,16 +108,45 @@ final class CreateTableImpl
         this.indexes = new ArrayList<>();
     }
 
-    final Table<?>          $table()        { return table; }
-    final boolean           $temporary()    { return temporary; }
-    final OnCommit          $onCommit()     { return onCommit; }
-    final Select<?>         $select()       { return select; }
-    final List<Field<?>>    $columnFields() { return columnFields; }
-    final List<DataType<?>> $columnTypes()  { return columnTypes; }
-    final List<Constraint>  $constraints()  { return constraints; }
-    final List<Index>       $indexes()      { return indexes; }
-    final boolean           $ifNotExists()  { return ifNotExists; }
-    final Comment           $comment()      { return comment; }
+    final Table<?> $table() {
+        return table;
+    }
+
+    final boolean $temporary() {
+        return temporary;
+    }
+
+    final OnCommit $onCommit() {
+        return onCommit;
+    }
+
+    final Select<?> $select() {
+        return select;
+    }
+
+    final List<Field<?>> $columnFields() {
+        return columnFields;
+    }
+
+    final List<DataType<?>> $columnTypes() {
+        return columnTypes;
+    }
+
+    final List<Constraint> $constraints() {
+        return constraints;
+    }
+
+    final List<Index> $indexes() {
+        return indexes;
+    }
+
+    final boolean $ifNotExists() {
+        return ifNotExists;
+    }
+
+    final Comment $comment() {
+        return comment;
+    }
 
     // ------------------------------------------------------------------------
     // XXX: DSL API
@@ -232,7 +170,7 @@ final class CreateTableImpl
         return this;
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
     public final CreateTableImpl column(Field<?> field) {
         return column((Field) field, field.getDataType());
@@ -426,8 +364,7 @@ final class CreateTableImpl
     private static final void executeImmediateIf(boolean wrap, Context<?> ctx, Consumer<? super Context<?>> runnable) {
         if (wrap) {
             executeImmediate(ctx, runnable);
-        }
-        else {
+        } else {
             runnable.accept(ctx);
             ctx.sql(';');
         }
@@ -462,8 +399,7 @@ final class CreateTableImpl
                     }
                 }
             });
-        }
-        else
+        } else
             accept1(ctx);
     }
 
@@ -473,15 +409,8 @@ final class CreateTableImpl
         if (select != null) {
 
 
-
-
-
-
-
-
             acceptCreateTableAsSelect(ctx);
-        }
-        else {
+        } else {
             toSQLCreateTable(ctx);
             toSQLOnCommit(ctx);
         }
@@ -489,12 +418,6 @@ final class CreateTableImpl
         if (comment != null && !EMULATE_COMMENT_IN_BLOCK.contains(ctx.dialect())) {
             ctx.formatSeparator()
                     .visit(K_COMMENT).sql(' ');
-
-
-
-
-
-
 
 
             ctx.visit(comment);
@@ -507,6 +430,7 @@ final class CreateTableImpl
 
         ctx.end(CREATE_TABLE);
     }
+
     static void acceptColumnComment(Context<?> ctx, Field<?> field) {
         if (!field.getComment().isEmpty())
             ctx.sql(' ').visit(K_COMMENT).sql(' ').visit(inline(field.getComment()));
@@ -572,7 +496,7 @@ final class CreateTableImpl
                             ctx.sql(',')
                                     .formatSeparator()
                                     .visit(DSL.constraint(table.getName() + "_" + field.getName() + "_chk")
-                                            .check(((Field) field).in(literals)));
+                                            .check(field.in(literals)));
                         }
                     }
                 }
@@ -591,8 +515,11 @@ final class CreateTableImpl
 
                     ctx.visit(K_INDEX);
 
-                    if (!"".equals(index.getName()))
-                        ctx.sql(' ').visit(index.getUnqualifiedName());
+                    if (!"".equals(index.getName())) {
+
+                        ctx.sql(' ').visit(index);
+                    }
+
 
                     ctx.sql(" (")
                             .visit(new SortFieldList(index.getFields()))
@@ -694,39 +621,6 @@ final class CreateTableImpl
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     private final void toSQLCreateTableName(Context<?> ctx) {
         ctx.start(CREATE_TABLE_NAME)
                 .visit(K_CREATE)
@@ -752,29 +646,18 @@ final class CreateTableImpl
     private final void toSQLOnCommit(Context<?> ctx) {
         if (temporary && onCommit != null) {
             switch (onCommit) {
-                case DELETE_ROWS:   ctx.formatSeparator().visit(K_ON_COMMIT_DELETE_ROWS);   break;
-                case PRESERVE_ROWS: ctx.formatSeparator().visit(K_ON_COMMIT_PRESERVE_ROWS); break;
-                case DROP:          ctx.formatSeparator().visit(K_ON_COMMIT_DROP);          break;
+                case DELETE_ROWS:
+                    ctx.formatSeparator().visit(K_ON_COMMIT_DELETE_ROWS);
+                    break;
+                case PRESERVE_ROWS:
+                    ctx.formatSeparator().visit(K_ON_COMMIT_PRESERVE_ROWS);
+                    break;
+                case DROP:
+                    ctx.formatSeparator().visit(K_ON_COMMIT_DROP);
+                    break;
             }
         }
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

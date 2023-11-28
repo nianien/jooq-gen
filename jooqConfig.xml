@@ -23,6 +23,7 @@
             <!--是否使用JDK8的java.timetypes类型-->
             <javaTimeTypes>true</javaTimeTypes>
         </generate>
+
         <database>
             <forcedTypes>
                 <forcedType>
