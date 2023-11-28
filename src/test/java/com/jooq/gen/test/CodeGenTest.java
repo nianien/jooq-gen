@@ -13,6 +13,8 @@ import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.Date;
+import java.util.Random;
+import java.util.UUID;
 
 
 /**
@@ -30,4 +32,6 @@ public class CodeGenTest {
         );
         GenerationTool.generate(configuration);
     }
+
+
 }

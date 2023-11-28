@@ -11,7 +11,9 @@ CREATE TABLE `user_info`
     `update_time` TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     `tenant_code` varchar(16) NOT NULL DEFAULT '' COMMENT '租户编码',
     `env`         varchar(8)  NOT NULL DEFAULT '' COMMENT '环境',
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uniq_uc_name` (`name`),
+    KEY `idx_uc_env` (`env`)
 )ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='用户信息表';
 
 CREATE TABLE `user_audit`
@@ -23,7 +25,9 @@ CREATE TABLE `user_audit`
     `reason_code`   varchar(256)         DEFAULT NULL COMMENT '拒绝理由',
     `refuse_reason` varchar(1024)        DEFAULT NULL COMMENT '拒绝原因',
     `env`           varchar(8)  NOT NULL DEFAULT '' COMMENT '环境标',
-    PRIMARY KEY (`userid`)
+    PRIMARY KEY (`userid`),
+    UNIQUE KEY `uniq_uc_name` (`name`),
+    KEY `idx_uc_env` (`env`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='用户审核表';
 
 CREATE TABLE `user_tag`
