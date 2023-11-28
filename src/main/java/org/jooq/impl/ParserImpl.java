@@ -475,6 +475,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
@@ -849,7 +850,7 @@ final class DefaultParseContext extends AbstractScope implements ParseContext {
 
 
     static final Set<SQLDialect>         SUPPORTS_HASH_COMMENT_SYNTAX  = SQLDialect.supportedBy(MARIADB, MYSQL);
-
+    private final AtomicInteger counter=new AtomicInteger(1);
     final Queries parse() {
         return wrap(() -> {
             List<Query> result = new ArrayList<>();
@@ -4304,10 +4305,10 @@ final class DefaultParseContext extends AbstractScope implements ParseContext {
 
                     // [#7268] MySQL has some legacy syntax where an index name
                     //         can override a constraint name
-                    //FIXME: add table_prefix in case of index naming conflict
                     Name index =parseIdentifierIf();
                     if (index != null){
-                        index=DSL.name(tableName.getName()+"_"+index.last());
+                        //FIXME: add table_prefix in case of index naming conflict
+                        index=DSL.name(index.last()+"_"+this.counter.getAndIncrement());
                         constraint = constraint(index);
                     }
 
@@ -4980,9 +4981,11 @@ final class DefaultParseContext extends AbstractScope implements ParseContext {
         // [#9246] In MySQL, there's a syntax where the unique constraint looks like an index:
         //         ALTER TABLE t ADD UNIQUE INDEX i (c)
         Name constraintName;
-        if (constraint == null && (constraintName = parseIdentifierIf()) != null)
+        if (constraint == null && (constraintName = parseIdentifierIf()) != null) {
+            //FIXME: add table_prefix in case of index naming conflict
+            constraintName = DSL.name(constraintName.last() + "_" + this.counter.getAndIncrement());
             constraint = constraint(constraintName);
-
+        }
         Field<?>[] fieldNames = parseKeyColumnList();
 
         ConstraintEnforcementStep e = constraint == null
@@ -11686,14 +11689,20 @@ final class DefaultParseContext extends AbstractScope implements ParseContext {
         if (result == null)
             throw expected("Identifier");
 
+        //FIXME: add table_prefix in case of index naming conflict
+        result=DSL.name(result.last()+"_"+this.counter.getAndIncrement());
         return result;
     }
 
     private final Name parseIndexNameIf() {
-        if (!peekKeyword("ON"))
-            return parseNameIf();
-        else
-            return null;
+        if (!peekKeyword("ON")) {
+            Name result =  parseNameIf();
+            if(result!=null){
+                //FIXME: add table_prefix in case of index naming conflict
+                return DSL.name(result.last()+"_"+this.counter.getAndIncrement());
+            }
+        }
+        return null;
     }
 
     private final Collation parseCollation() {
