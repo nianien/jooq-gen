@@ -5070,6 +5070,7 @@ public class JavaGenerator extends AbstractGenerator {
             out.println("%s%sclass %s(", visibility(), (generatePojosAsKotlinDataClasses() ? "data " : ""), className);
 
             forEach(getTypedElements(tableUdtOrEmbeddable), (column, separator) -> {
+                //FIXME: generate field's comments for kotlin pojo class
                 out.javadoc("[[%s]]", list(escapeEntities(comment(column))));
                 final String member = getStrategy().getJavaMemberName(column, Mode.POJO);
                 final String nullability = kotlinNullability(out, column, Mode.POJO);
@@ -5120,6 +5121,7 @@ public class JavaGenerator extends AbstractGenerator {
 
             if (!generatePojosAsJavaRecordClasses())
                 for (TypedElementDefinition<?> column : getTypedElements(tableUdtOrEmbeddable)) {
+                    //FIXME: generate field's comments for java pojo class
                     out.javadoc("[[%s]]", list(escapeEntities(comment(column))));
                     out.println("private %s%s %s;",
                             generateImmutablePojos() ? "final " : "",
@@ -9084,6 +9086,7 @@ public class JavaGenerator extends AbstractGenerator {
     }
 
     protected void printClassJavadoc(JavaWriter out, Definition definition) {
+        //FIXME: generate fields's comments for scala or java record
         String[][] fieldAndComments=new String[0][2];
         if((scala||generatePojosAsJavaRecordClasses())&&definition instanceof TableDefinition){
             fieldAndComments = getTypedElements(definition).stream().map(column -> new String[]{
@@ -9118,6 +9121,7 @@ public class JavaGenerator extends AbstractGenerator {
     }
 
     protected void printClassJavadoc(JavaWriter out, String comment,String[]... fieldAndComments) {
+        //FIXME: generate fields's comments for class doc
         if (generateJavadoc()) {
             out.println("/**");
 

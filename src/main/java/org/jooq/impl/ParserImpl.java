@@ -4495,7 +4495,7 @@ final class DefaultParseContext extends AbstractScope implements ParseContext {
                     Name index =parseIdentifierIf();
                     if (index != null){
                         //FIXME: add table_prefix in case of index naming conflict
-                        index=DSL.name(index.last()+"_"+this.counter.getAndIncrement());
+                        index = DSL.name(index.last() + "_" + this.counter.getAndIncrement());
                         constraint = constraint(index);
                     }
 
@@ -5129,7 +5129,7 @@ final class DefaultParseContext extends AbstractScope implements ParseContext {
     private final Index parseIndexSpecification(Table<?> table) {
         //FIXME: add table_prefix in case of index naming conflict
         Name name = parseIdentifierIf();
-        name =DSL.name(name.last()+"_"+this.counter.getAndIncrement());
+        name = DSL.name(name.last() + "_" + this.counter.getAndIncrement());
         parseUsingIndexTypeIf();
         return Internal.createIndex(name == null ? NO_NAME : name, table, parseParenthesisedSortSpecification(), false);
     }
@@ -5184,7 +5184,7 @@ final class DefaultParseContext extends AbstractScope implements ParseContext {
         Name constraintName;
         if (constraint == null && (constraintName = parseIdentifierIf()) != null) {
             //FIXME: add table_prefix in case of index naming conflict
-            constraintName =DSL.name(constraintName.last()+"_"+this.counter.getAndIncrement());
+            constraintName = DSL.name(constraintName.last() + "_" + this.counter.getAndIncrement());
             constraint = constraint(constraintName);
 
         }
@@ -12305,7 +12305,7 @@ final class DefaultParseContext extends AbstractScope implements ParseContext {
             throw expected("Identifier");
 
         //FIXME: add table_prefix in case of index naming conflict
-        result=DSL.name(result.last()+"_"+this.counter.getAndIncrement());
+        result = DSL.name(result.last() + "_" + this.counter.getAndIncrement());
         return result;
     }
 
@@ -12314,12 +12314,10 @@ final class DefaultParseContext extends AbstractScope implements ParseContext {
             Name result =  parseNameIf();
             if(result!=null){
                 //FIXME: add table_prefix in case of index naming conflict
-                return DSL.name(result.last()+"_"+this.counter.getAndIncrement());
+                return DSL.name(result.last() + "_" + this.counter.getAndIncrement());
             }
-            return null;
         }
-        else
-            return null;
+        return null;
     }
 
     private final Collation parseCollation() {

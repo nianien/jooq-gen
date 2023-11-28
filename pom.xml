@@ -5,9 +5,9 @@
     <groupId>io.github.nianien</groupId>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>jooq-gen</artifactId>
-    <version>3.18.7</version>
+    <version>3.18.7u1</version>
     <name>jooq-gen</name>
-    <description>enhance tools for jooq-gen</description>
+    <description>generate java code by sql scripts</description>
     <url>https://github.com/nianien/jooq-gen</url>
 
     <properties>
