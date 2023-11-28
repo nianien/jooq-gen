@@ -13,7 +13,7 @@ CREATE TABLE `user_info`
     `env`         varchar(8)  NOT NULL DEFAULT '' COMMENT '环境',
     PRIMARY KEY (`id`),
     UNIQUE KEY `uniq_uc_name` (`name`),
-    KEY `idx_uc_env` (`env`)
+    KEY `idx_uc_phone` (`phone`)
 )ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='用户信息表';
 
 CREATE TABLE `user_audit`
@@ -30,6 +30,8 @@ CREATE TABLE `user_audit`
     KEY `idx_uc_env` (`env`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='用户审核表';
 
+
+
 CREATE TABLE `user_tag`
 (
     `id`          bigint    unsigned  NOT NULL AUTO_INCREMENT COMMENT '主键',
@@ -40,4 +42,7 @@ CREATE TABLE `user_tag`
     `env`         varchar(8)  NOT NULL DEFAULT '' COMMENT '环境标',
     PRIMARY KEY (`id`)
 )ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='用户标签表';
+
+CREATE INDEX `idx_env` ON `user_info` (`env`);
+CREATE INDEX `idx_env` ON `user_tag` (`env`);
 
