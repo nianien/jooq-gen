@@ -165,8 +165,8 @@ public class H2DataType {
     protected static final DataType<BigInteger>     __BIGINTEGER                 = new BuiltInDataType<>(FAMILY, SQLDataType.DECIMAL_INTEGER, "decimal(p, s)");
     protected static final DataType<UByte>          __TINYINTUNSIGNED            = new BuiltInDataType<>(FAMILY, SQLDataType.TINYINTUNSIGNED, "smallint");
     protected static final DataType<UShort>         __SMALLINTUNSIGNED           = new BuiltInDataType<>(FAMILY, SQLDataType.SMALLINTUNSIGNED, "int");
-    protected static final DataType<UInteger>       __INTEGERUNSIGNED            = new BuiltInDataType<>(FAMILY, SQLDataType.INTEGERUNSIGNED, "int unsigned");
-    //FIXME: h2 supports bigint unsigned
+    protected static final DataType<UInteger>       __INTEGERUNSIGNED            = new BuiltInDataType<>(FAMILY, SQLDataType.INTEGERUNSIGNED, "bigint");
+    //FIXME: h2 supports bigint ignore unsigned
     protected static final DataType<ULong>          __BIGINTUNSIGNED             = new BuiltInDataType<>(FAMILY, SQLDataType.BIGINTUNSIGNED, "bigint unsigned");
 
     // -------------------------------------------------------------------------
