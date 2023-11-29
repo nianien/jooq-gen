@@ -169,7 +169,7 @@ public class DDLDatabase extends AbstractInterpretingDatabase {
 
         try {
             Scanner s = new Scanner(r = source.reader()).useDelimiter("\\A");
-            Queries queries = ctx.parser().parse(s.hasNext() ? s.next().replaceAll("(?i)\\sunsigned\\s","") : " ");
+            Queries queries = ctx.parser().parse(s.hasNext() ? s.next() : " ");
 
             for (Query query : queries) {
 
